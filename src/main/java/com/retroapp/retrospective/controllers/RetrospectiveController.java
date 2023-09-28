@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.retroapp.retrospective.Exceptions.RetorspectiveAlreadyExistsException;
+import com.retroapp.retrospective.Exceptions.RetorspectiveUnknownException;
 import com.retroapp.retrospective.Repository.RetrospectiveEntity;
 import com.retroapp.retrospective.model.Feedback;
 import com.retroapp.retrospective.model.Retrospective;
@@ -37,23 +38,22 @@ import com.retroapp.retrospective.services.IRetrospectiveService;
 
   @GetMapping("/getretro")
   public List<RetrospectiveEntity> getretro() {
-    logger.debug("Debugging log");
-        logger.info("Info log");
-        logger.warn("Hey, This is a warning!");
-        logger.error("Oops! We have an Error. OK");
-        logger.fatal("Damn! Fatal error. Please fix me.");
-    return service.getRetrospectives();
-    
 
+    try {
+      return service.getRetrospectives();
+    } catch (Exception e) {
+      // this is just to give you how we will handle the exception.
+      throw new RetorspectiveUnknownException(e.getMessage());
+    }
   }
 
   @PostMapping(value = "/addRetrospective")
   public ResponseEntity<Retrospective> addRetrospective(@RequestBody Retrospective retro) {
     try {
       service.addRetrospective(retro);
-      
       return new ResponseEntity<Retrospective>(retro, HttpStatus.OK);
     } catch (Exception ex) {
+       // this is just to give you how we will handle the exception.
       throw new RetorspectiveAlreadyExistsException(ex.getMessage());
     }
 
@@ -65,6 +65,7 @@ import com.retroapp.retrospective.services.IRetrospectiveService;
       service.addFeedback(name, feedback);
       return new ResponseEntity<String>("Updated!", HttpStatus.OK);
     } catch (Exception ex) {
+       // this is just to give you how we will handle the exception.
       throw new RetorspectiveAlreadyExistsException(ex.getMessage());
     }
 
@@ -76,7 +77,8 @@ import com.retroapp.retrospective.services.IRetrospectiveService;
       service.updateFeedback(name, feedback);
       return new ResponseEntity<String>("Updated!", HttpStatus.OK);
     } catch (Exception e) {
-      throw new RetorspectiveAlreadyExistsException(e.getMessage());
+       // this is just to give you how we will handle the exception.
+      throw new RetorspectiveUnknownException(e.getMessage());
     }
   }
   @GetMapping("searchPagination/{pageNum}/{pagesize}")
@@ -88,8 +90,8 @@ import com.retroapp.retrospective.services.IRetrospectiveService;
   @GetMapping(value="searchPaginationDate/{date}/{pageNum}/{pagesize}/{type}")
   public ResponseEntity<List<List<RetrospectiveEntity>>> searchPaginationDate(@PathVariable String date, @PathVariable Integer pageNum , @PathVariable Integer pagesize, @PathVariable Integer type)
   {
-     
-    HttpHeaders headers = new HttpHeaders();
+     try {
+      HttpHeaders headers = new HttpHeaders();
 
     if(type==1)
       headers.setContentType(MediaType.APPLICATION_XML);
@@ -100,6 +102,12 @@ import com.retroapp.retrospective.services.IRetrospectiveService;
     = new ResponseEntity<>(service.getPagesbyDate(date,pageNum, pagesize), headers,
                            HttpStatus.CREATED);
     return entityModel;
+     } catch (Exception e) {
+       // this is just to give you how we will handle the exception.
+      throw new RetorspectiveUnknownException(e.getMessage());
+     }
+
+    
   }
 
 }

@@ -23,7 +23,17 @@ public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExce
     }
 
     @ExceptionHandler(RetorspectiveAlreadyExistsException.class)
-    public final ResponseEntity<ExceptionResponse> handleUserNotFoundException(RetorspectiveAlreadyExistsException exception,
+    public final ResponseEntity<ExceptionResponse> handleAlreadyExistsException(RetorspectiveAlreadyExistsException exception,
+                                                                               WebRequest request) {
+        ExceptionResponse exceptionResponse = new ExceptionResponse(LocalDateTime.now(),
+                exception.getMessage(),
+                request.getDescription(false));
+
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(RetorspectiveUnknownException.class)
+    public final ResponseEntity<ExceptionResponse> RetorspectiveUnknownException(RetorspectiveAlreadyExistsException exception,
                                                                                WebRequest request) {
         ExceptionResponse exceptionResponse = new ExceptionResponse(LocalDateTime.now(),
                 exception.getMessage(),
